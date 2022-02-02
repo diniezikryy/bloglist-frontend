@@ -1,19 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+
 import Blog from "./components/Blog";
 import Notification from "./components/Notification";
+import LoginForm from "./components/LoginForm";
+import BlogForm from "./components/BlogForm";
+import Toggle from "./components/Toggle";
+
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 
 const App = () => {
+  // Blog State
   const [blogs, setBlogs] = useState([]);
 
+  // Login State
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const [newTitle, setNewTitle] = useState("");
-  const [newAuthor, setNewAuthor] = useState("");
-  const [newURL, setNewURL] = useState("");
-
+  // Error Message State
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
 
@@ -70,49 +74,18 @@ const App = () => {
     setUser(null);
   };
 
-  const loginForm = () => (
-    <form onSubmit={handleLogin}>
-      <div>
-        username
-        <input
-          type="text"
-          value={username}
-          name="Username"
-          onChange={({ target }) => setUsername(target.value)}
-        />
-      </div>
-      <div>
-        password
-        <input
-          type="password"
-          value={password}
-          name="Password"
-          onChange={({ target }) => setPassword(target.value)}
-        />
-      </div>
-      <button type="submit">login</button>
-    </form>
-  );
-
-  const createBlog = (event) => {
-    event.preventDefault();
-    const blogObject = {
-      title: newTitle,
-      author: newAuthor,
-      url: newURL,
-    };
-
+  const createBlog = (BlogToAdd) => {
+    blogFormRef.current.toggleVisibility();
     try {
-      blogService.create(blogObject).then((returnedBlog) => {
+      blogService.create(BlogToAdd).then((returnedBlog) => {
         setBlogs(blogs.concat(returnedBlog));
-        setSuccessMessage(`${newTitle} has been added to the blog list!`);
+        setSuccessMessage(
+          `${BlogToAdd.title} has been added to the blog list!`
+        );
         setErrorMessage(null);
         setTimeout(() => {
           setSuccessMessage(null);
         }, 5000);
-        setNewTitle("");
-        setNewAuthor("");
-        setNewURL("");
       });
     } catch (exception) {
       setErrorMessage("there are missing fields");
@@ -123,38 +96,24 @@ const App = () => {
     }
   };
 
-  const blogForm = () => (
-    <form onSubmit={createBlog}>
-      <div>
-        Title
-        <input
-          value={newTitle}
-          onChange={(event) => {
-            setNewTitle(event.target.value);
-          }}
-        />
-      </div>
-      <div>
-        Author
-        <input
-          value={newAuthor}
-          onChange={(event) => {
-            setNewAuthor(event.target.value);
-          }}
-        />
-      </div>
-      <div>
-        URL
-        <input
-          value={newURL}
-          onChange={(event) => {
-            setNewURL(event.target.value);
-          }}
-        />
-      </div>
+  const blogFormRef = useRef();
 
-      <button type="submit">add</button>
-    </form>
+  const blogForm = () => (
+    <Toggle buttonLabel="Add Blog" ref={blogFormRef}>
+      <BlogForm createBlog={createBlog} />
+    </Toggle>
+  );
+
+  const loginForm = () => (
+    <Toggle buttonLabel="log in">
+      <LoginForm
+        username={username}
+        password={password}
+        setUsername={setUsername}
+        setPassword={setPassword}
+        handleSubmit={handleLogin}
+      />
+    </Toggle>
   );
 
   return (
