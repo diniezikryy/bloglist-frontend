@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const Blog = ({ blog, updateBlog }) => {
+const Blog = ({ blog, updateBlog, removeBlog }) => {
   const [visible, setVisible] = useState(false);
   const showWhenVisible = { display: visible ? "" : "none" };
   const [blogObject, setBlogObject] = useState(blog);
@@ -19,6 +19,8 @@ const Blog = ({ blog, updateBlog }) => {
     updateBlog(updatedBlog);
     setBlogObject(updatedBlog);
   };
+
+  const deleteBlog = () => removeBlog(blog);
 
   const blogStyle = {
     paddingTop: 10,
@@ -41,6 +43,9 @@ const Blog = ({ blog, updateBlog }) => {
             Likes: {blogObject.likes}{" "}
             <button onClick={increaseLikes}>like</button>
           </p>
+          <div>
+            <button onClick={deleteBlog}>delete blog</button>
+          </div>
         </div>
       </div>
     </div>

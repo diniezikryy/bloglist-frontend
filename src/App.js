@@ -74,19 +74,18 @@ const App = () => {
     setUser(null);
   };
 
-  const createBlog = (BlogToAdd) => {
+  const createBlog = async (blogToAdd) => {
     blogFormRef.current.toggleVisibility();
     try {
-      blogService.create(BlogToAdd).then((returnedBlog) => {
-        setBlogs(blogs.concat(returnedBlog));
-        setSuccessMessage(
-          `${BlogToAdd.title} has been added to the blog list!`
-        );
-        setErrorMessage(null);
-        setTimeout(() => {
-          setSuccessMessage(null);
-        }, 5000);
-      });
+      const addedBlog = await blogService.create(blogToAdd);
+      setSuccessMessage(
+        `Blog '${blogToAdd.title}' has been successfully added`
+      );
+      setBlogs(blogs.concat(addedBlog));
+      setErrorMessage(null);
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
     } catch (exception) {
       setErrorMessage("there are missing fields");
       setSuccessMessage(null);
@@ -102,7 +101,10 @@ const App = () => {
       setSuccessMessage(
         `Blog ${blogToUpdate.title} has been successfully updated`
       );
+
       setBlogs(
+        // if current blog element is not the updated blog element, return the old blog element
+        // else if it tis, return the new updated blog
         blogs.map((blog) => (blog.id !== blogToUpdate.id ? blog : updatedBlog))
       );
       setErrorMessage(null);
@@ -110,8 +112,30 @@ const App = () => {
         setSuccessMessage(null);
       }, 5000);
     } catch (exception) {
-      console.log(exception);
       setErrorMessage(`Cannot update blog ${blogToUpdate.title}`);
+      setSuccessMessage(null);
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
+    }
+  };
+
+  const removeBlog = async (blogToRemove) => {
+    try {
+      if (window.confirm(`Delete ${blogToRemove.title} ?`)) {
+        blogService.remove(blogToRemove.id);
+        setSuccessMessage(
+          `Blog ${blogToRemove.title} was successfully deleted`
+        );
+        setBlogs(blogs.filter((blog) => blog.id !== blogToRemove.id));
+        setErrorMessage(null);
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 5000);
+      }
+    } catch (exception) {
+      console.log(exception);
+      setErrorMessage(`Cannot remove blog ${blogToRemove.title}`);
       setSuccessMessage(null);
       setTimeout(() => {
         setSuccessMessage(null);
@@ -139,6 +163,10 @@ const App = () => {
     </Toggle>
   );
 
+  const sortByLikes = (b1, b2) => {
+    return b2.likes - b1.likes;
+  };
+
   return (
     <div>
       <h1>Blogs</h1>
@@ -161,8 +189,13 @@ const App = () => {
         </div>
       )}
 
-      {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} updateBlog={updateBlog} />
+      {blogs.sort(sortByLikes).map((blog) => (
+        <Blog
+          key={blog.id}
+          blog={blog}
+          updateBlog={updateBlog}
+          removeBlog={removeBlog}
+        />
       ))}
     </div>
   );
