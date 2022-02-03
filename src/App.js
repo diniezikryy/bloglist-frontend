@@ -96,6 +96,29 @@ const App = () => {
     }
   };
 
+  const updateBlog = async (blogToUpdate) => {
+    try {
+      const updatedBlog = await blogService.update(blogToUpdate);
+      setSuccessMessage(
+        `Blog ${blogToUpdate.title} has been successfully updated`
+      );
+      setBlogs(
+        blogs.map((blog) => (blog.id !== blogToUpdate.id ? blog : updatedBlog))
+      );
+      setErrorMessage(null);
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
+    } catch (exception) {
+      console.log(exception);
+      setErrorMessage(`Cannot update blog ${blogToUpdate.title}`);
+      setSuccessMessage(null);
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
+    }
+  };
+
   const blogFormRef = useRef();
 
   const blogForm = () => (
@@ -139,7 +162,7 @@ const App = () => {
       )}
 
       {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} updateBlog={updateBlog} />
       ))}
     </div>
   );

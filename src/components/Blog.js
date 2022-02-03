@@ -1,14 +1,24 @@
 import React, { useState } from "react";
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, updateBlog }) => {
   const [visible, setVisible] = useState(false);
   const showWhenVisible = { display: visible ? "" : "none" };
+  const [blogObject, setBlogObject] = useState(blog);
 
   const toggleVisibility = () => {
     setVisible(!visible);
   };
 
   const buttonLabel = visible ? "hide" : "show";
+
+  const increaseLikes = () => {
+    const updatedBlog = {
+      ...blog,
+      likes: blog.likes + 1,
+    };
+    updateBlog(updatedBlog);
+    setBlogObject(updatedBlog);
+  };
 
   const blogStyle = {
     paddingTop: 10,
@@ -22,13 +32,14 @@ const Blog = ({ blog }) => {
     <div style={blogStyle}>
       <div>
         <p>
-          <b>{blog.title}</b> by {blog.author}{" "}
+          <b>{blogObject.title}</b> by {blogObject.author}{" "}
           <button onClick={toggleVisibility}>{buttonLabel}</button>
         </p>
         <div style={showWhenVisible}>
-          <p>Url: {blog.url}</p>
+          <p>Url: {blogObject.url}</p>
           <p>
-            Likes: {blog.likes} <button id="like-button">like</button>
+            Likes: {blogObject.likes}{" "}
+            <button onClick={increaseLikes}>like</button>
           </p>
         </div>
       </div>
