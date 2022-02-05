@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 const Notification = ({ errorMessage, successMessage }) => {
   if (successMessage === null && errorMessage === null) {
@@ -9,4 +10,10 @@ const Notification = ({ errorMessage, successMessage }) => {
     return <div className="error">{errorMessage}</div>;
   }
 };
+
+Notification.propTypes = {
+  errorMessage: PropTypes.string.isRequired,
+  successMessage: PropTypes.string.isRequired,
+};
+
 export default Notification;

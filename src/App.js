@@ -195,6 +195,7 @@ const App = () => {
           blog={blog}
           updateBlog={updateBlog}
           removeBlog={removeBlog}
+          userId={user !== null ? user.id : "Not logged in"}
         />
       ))}
     </div>
